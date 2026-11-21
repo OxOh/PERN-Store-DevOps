@@ -38,7 +38,7 @@
     "morgan": "^1.10.0",
     "nodemailer": "^10.6.1",
     "pg": "^8.8.0",
-    "pino": "^6.11.3",
+    "pino": "^10.4.0",
     "stripe": "^8.138.0",
     "swagger-ui-express": "^4.6.0"
   },
