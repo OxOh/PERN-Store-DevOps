@@ -115,3 +115,14 @@ jobs:
               aquasec/trivy:0.58.1 image --severity CRITICAL --ignore-unfixed \
               --no-progress --exit-code 1 "$img"
           done
+
+  sonar:
+    name: SonarQube Cloud - static analysis
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - uses: SonarSource/sonarqube-scan-action@v5
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
