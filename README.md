@@ -1,4 +1,5 @@
 # PERN Store — DevSecOps Edition
+![CI](https://github.com/OxOh/PERN-Store/actions/workflows/ci.yml/badge.svg)
 
 A full-stack e-commerce app (PostgreSQL, Express, React, Node.js), used as the base for building a DevSecOps pipeline: hardened containers, CI, security scanning and AWS deployment.
 
@@ -10,7 +11,7 @@ A full-stack e-commerce app (PostgreSQL, Express, React, Node.js), used as the b
 - [x] Fixed backend dev script so NODE_ENV=development actually applies
 - [x] Fixed the broken test suite: missing Jest dependency, a schema bug that blocked deleting users, an outdated assertion, and new product tests
 - [x] Review and harden the existing Docker Compose setup (localhost binding, non-root containers, no secrets in the compose file)
-- [ ] GitHub Actions CI: install, lint, test
+- [x] GitHub Actions CI: lint, test against Postgres, build client and Docker images
 - [ ] Security scanning: SonarCloud, npm audit / Trivy, Gitleaks
 - [ ] AWS deployment with secrets managed outside the repo
 
