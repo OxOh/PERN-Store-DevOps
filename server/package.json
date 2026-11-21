@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "cross-env NODE_ENV=production node index",
-    "dev": "cross-env NODE_ENV=development && nodemon --legacy-watch",
+    "dev": "cross-env NODE_ENV=development nodemon --legacy-watch",
     "test": "cross-env NODE_ENV=test jest --verbose --runInBand",
     "test:watch": "cross-env NODE_ENV=test jest --verbose --runInBand --watch",
     "lint": "eslint .",
