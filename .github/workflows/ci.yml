@@ -23,7 +23,7 @@ jobs:
       - name: Scan full history for secrets
         run: |
           docker run --rm --user "$(id -u):$(id -g)" -v "$PWD":/repo \
-            zricethezav/gitleaks:v8.24.0@ detect --source /repo --redact --no-banner
+            zricethezav/gitleaks:v8.24.0@sha256:2bcceac45179b3a91bff11a824d0fb952585b429e54fc928728b1d4d5c3e5176 detect --source /repo --redact --no-banner
 
   server:
     name: Server - lint, audit and test
@@ -33,7 +33,7 @@ jobs:
         working-directory: server
     services:
       postgres:
-        image: postgres:16.4-alpine@
+        image: postgres:16.4-alpine@sha256:5660c2cbfea50c7a9127d17dc4e48543eedd3d7a41a595a2dfa572471e37e64c
         env:
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: pernstore_test
@@ -104,7 +104,7 @@ jobs:
           for img in pern-store-server pern-store-client; do
             docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
               -v "$HOME/.cache/trivy":/root/.cache/ \
-              aquasec/trivy:0.58.1@ image --severity HIGH,CRITICAL --ignore-unfixed \
+              aquasec/trivy:0.58.1@sha256:ab70a02200597efa04748f210f793936eb647cbcdb0ea69cc30b226d6f5a22c7 image --severity HIGH,CRITICAL --ignore-unfixed \
               --no-progress --exit-code 0 "$img"
           done
       - name: Trivy gate (fail on fixable CRITICAL)
@@ -112,7 +112,7 @@ jobs:
           for img in pern-store-server pern-store-client; do
             docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
               -v "$HOME/.cache/trivy":/root/.cache/ \
-              aquasec/trivy:0.58.1@ image --severity CRITICAL --ignore-unfixed \
+              aquasec/trivy:0.58.1@sha256:ab70a02200597efa04748f210f793936eb647cbcdb0ea69cc30b226d6f5a22c7 image --severity CRITICAL --ignore-unfixed \
               --no-progress --exit-code 1 "$img"
           done
 
