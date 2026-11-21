@@ -13,8 +13,20 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  secrets:
+    name: Secrets - Gitleaks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - name: Scan full history for secrets
+        run: |
+          docker run --rm --user "$(id -u):$(id -g)" -v "$PWD":/repo \
+            zricethezav/gitleaks:v8.24.0 detect --source /repo --redact --no-banner
+
   server:
-    name: Server - lint and test
+    name: Server - lint, audit and test
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -40,6 +52,7 @@ jobs:
           cache: npm
           cache-dependency-path: server/package-lock.json
       - run: npm ci
+      - run: npm audit --omit=dev --audit-level=high
       - run: npm run lint
       - name: Load schema
         run: psql -v ON_ERROR_STOP=1 -h localhost -U postgres -d pernstore_test -f config/init.sql
@@ -59,7 +72,7 @@ jobs:
           REFRESH_SECRET: ci-test-refresh-secret
 
   client:
-    name: Client - lint and build
+    name: Client - lint, audit and build
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -72,6 +85,7 @@ jobs:
           cache: npm
           cache-dependency-path: client/package-lock.json
       - run: npm ci --legacy-peer-deps
+      - run: npm audit --omit=dev --audit-level=high
       - run: npm run lint
       - run: npm run build
         env:
