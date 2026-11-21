@@ -21,7 +21,7 @@ export default defineConfig({
     },
   },
   plugins: [react()],
-    server: {
+  server: {
     watch: {
       usePolling: true,
     },

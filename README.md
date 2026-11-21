@@ -8,7 +8,8 @@ A full-stack e-commerce app (PostgreSQL, Express, React, Node.js), used as the b
 
 - [x] Local setup fixes: configurable API URL, documented environment and database setup
 - [x] Fixed backend dev script so NODE_ENV=development actually applies
-- [ ] Review and harden the existing Docker Compose setup (localhost binding, non-root containers, no secrets in the compose file)
+- [x] Fixed the broken test suite: missing Jest dependency, a schema bug that blocked deleting users, an outdated assertion, and new product tests
+- [x] Review and harden the existing Docker Compose setup (localhost binding, non-root containers, no secrets in the compose file)
 - [ ] GitHub Actions CI: install, lint, test
 - [ ] Security scanning: SonarCloud, npm audit / Trivy, Gitleaks
 - [ ] AWS deployment with secrets managed outside the repo
@@ -16,6 +17,16 @@ A full-stack e-commerce app (PostgreSQL, Express, React, Node.js), used as the b
 ## Tech stack
 
 React (Vite) · Node.js / Express · PostgreSQL · Docker · GitHub Actions · AWS
+
+## Running with Docker (recommended)
+
+```bash
+cp server/.env.example server/.env    # set a strong POSTGRES_PASSWORD first
+docker compose up -d --build
+```
+App: http://localhost:3000. Only the frontend is published, on `127.0.0.1`. The API sits behind nginx at `/api`, and PostgreSQL runs on an internal network with no host port and no internet access. The schema loads automatically on first start, and all containers run as non-root users.
+
+Frontend build variables (`VITE_GOOGLE_CLIENT_ID`, `VITE_STRIPE_PUB_KEY`, `VITE_PAYSTACK_PUB_KEY`) go in a root `.env` file. These end up in the browser bundle, so only public keys belong there.
 
 ## Running locally
 
