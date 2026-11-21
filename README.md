@@ -12,7 +12,11 @@ A full-stack e-commerce app (PostgreSQL, Express, React, Node.js), used as the b
 - [x] Fixed the broken test suite: missing Jest dependency, a schema bug that blocked deleting users, an outdated assertion, and new product tests
 - [x] Review and harden the existing Docker Compose setup (localhost binding, non-root containers, no secrets in the compose file)
 - [x] GitHub Actions CI: lint, test against Postgres, build client and Docker images
-- [ ] Security scanning: SonarCloud, npm audit / Trivy, Gitleaks
+- [x] Secret scanning with Gitleaks over the full Git history
+- [x] Dependency auditing with npm audit (fails on high/critical)
+- [x] Image scanning with Trivy (fails on fixable critical)
+- [x] Hardened images: distroless Node runtime on Debian 13, patched nginx; HIGH/CRITICAL image vulnerabilities reduced from 124 to 0
+- [ ] Static analysis with SonarCloud
 - [ ] AWS deployment with secrets managed outside the repo
 
 ## Tech stack

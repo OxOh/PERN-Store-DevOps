@@ -78,10 +78,26 @@ jobs:
           VITE_API_URL: /api
 
   docker:
-    name: Docker - build images
+    name: Docker - build and scan images
     runs-on: ubuntu-latest
-    needs: [server, client]
+    needs: [secrets, server, client]
     steps:
       - uses: actions/checkout@v5
       - run: docker build -t pern-store-server ./server
       - run: docker build -t pern-store-client ./client
+      - name: Trivy report (HIGH and CRITICAL)
+        run: |
+          for img in pern-store-server pern-store-client; do
+            docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
+              -v "$HOME/.cache/trivy":/root/.cache/ \
+              aquasec/trivy:0.58.1 image --severity HIGH,CRITICAL --ignore-unfixed \
+              --no-progress --exit-code 0 "$img"
+          done
+      - name: Trivy gate (fail on fixable CRITICAL)
+        run: |
+          for img in pern-store-server pern-store-client; do
+            docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
+              -v "$HOME/.cache/trivy":/root/.cache/ \
+              aquasec/trivy:0.58.1 image --severity CRITICAL --ignore-unfixed \
+              --no-progress --exit-code 1 "$img"
+          done
