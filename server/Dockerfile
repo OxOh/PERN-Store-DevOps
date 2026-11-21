@@ -1,4 +1,4 @@
-FROM node:22.23.2-trixie-slim AS build
+FROM node:26.13.1-trixie-slim AS build
 WORKDIR /usr/src/app
 COPY package.json package-lock.json ./
 RUN npm ci --omit=dev --no-audit --ignore-scripts && npm rebuild bcrypt
