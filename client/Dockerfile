@@ -1,7 +1,7 @@
 FROM node:22.12-bookworm-slim AS build
 WORKDIR /app
 COPY package.json package-lock.json ./
-RUN npm ci --no-audit --legacy-peer-deps
+RUN npm ci --no-audit --legacy-peer-deps --ignore-scripts
 COPY . .
 ARG VITE_API_URL=/api
 ARG VITE_GOOGLE_CLIENT_ID
