@@ -17,6 +17,7 @@ A full-stack e-commerce app (PostgreSQL, Express, React, Node.js), used as the b
 - [x] Image scanning with Trivy (fails on fixable critical)
 - [x] Hardened images: distroless Node runtime on Debian 13, patched nginx; HIGH/CRITICAL image vulnerabilities reduced from 124 to 0
 - [x] Static analysis with SonarQube Cloud
+- [x] Supply-chain hardening: actions pinned to commit SHAs, CI images pinned by digest, npm install scripts blocked except bcrypt, Dependabot keeping pins current
 - [ ] AWS deployment with secrets managed outside the repo
 
 ## Tech stack
