@@ -1,4 +1,4 @@
-FROM node:22.12-bookworm-slim AS build
+FROM node:26.13-bookworm-slim AS build
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci --no-audit --legacy-peer-deps --ignore-scripts
