@@ -1,9 +1,9 @@
 # PERN Store — DevSecOps Edition
-![CI](https://github.com/OxOh/PERN-Store/actions/workflows/ci.yml/badge.svg)
+![CI](https://github.com/OxOh/<new-repo>/actions/workflows/ci.yml/badge.svg)
 
 A full-stack e-commerce app (PostgreSQL, Express, React, Node.js), used as the base for building a DevSecOps pipeline: hardened containers, CI, security scanning and AWS deployment.
 
-> Based on [PERN-Store](https://github.com/OxOh/PERN-Store) by @dhatGuy. The application code is theirs; the infrastructure, pipeline and security work in this repo is mine.
+> Based on [PERN-Store](https://github.com/dhatGuy/PERN-Store) by @dhatGuy. The application code is theirs; the infrastructure, pipeline and security work in this repo is mine.
 
 ## What I added
 
