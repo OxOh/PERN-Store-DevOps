@@ -13,7 +13,7 @@ ENV VITE_API_URL=$VITE_API_URL \
     VITE_PAYSTACK_PUB_KEY=$VITE_PAYSTACK_PUB_KEY
 RUN npm run build
 
-FROM nginxinc/nginx-unprivileged:1.29-alpine
+FROM nginxinc/nginx-unprivileged:1.31-alpine
 USER root
 RUN apk upgrade --no-cache
 USER 101
