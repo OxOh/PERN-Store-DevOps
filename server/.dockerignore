@@ -1,4 +1,9 @@
+node_modules
+npm-debug.log
+.env
+.env.*
+!.env.example
+__tests__
+Dockerfile*
 .dockerignore
 .gitignore
-node_modules
-Dockerfile

@@ -1,15 +1,19 @@
-FROM node:16
-
-WORKDIR /usr/src/app
-
+FROM node:22.12-bookworm-slim AS build
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci --no-audit --legacy-peer-deps
 COPY . .
-
-RUN npm ci --no-audit --legacy-peer-deps || npm ci --no-audit --legacy-peer-deps --maxsockets 1
-
+ARG VITE_API_URL=/api
+ARG VITE_GOOGLE_CLIENT_ID
+ARG VITE_STRIPE_PUB_KEY
+ARG VITE_PAYSTACK_PUB_KEY
+ENV VITE_API_URL=$VITE_API_URL \
+    VITE_GOOGLE_CLIENT_ID=$VITE_GOOGLE_CLIENT_ID \
+    VITE_STRIPE_PUB_KEY=$VITE_STRIPE_PUB_KEY \
+    VITE_PAYSTACK_PUB_KEY=$VITE_PAYSTACK_PUB_KEY
 RUN npm run build
 
-RUN npm install -g serve
-
-EXPOSE 3000
-
-CMD ["serve", "dist"]
+FROM nginxinc/nginx-unprivileged:1.27-alpine
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY --from=build /app/dist /usr/share/nginx/html
+EXPOSE 8080

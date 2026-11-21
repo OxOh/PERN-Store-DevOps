@@ -1,11 +1,13 @@
-FROM node:16
+FROM node:22.12-bookworm-slim
 
+ENV NODE_ENV=production
 WORKDIR /usr/src/app
 
-COPY . .
+COPY package.json package-lock.json ./
+RUN npm ci --omit=dev --no-audit
 
-RUN npm ci --no-audit || npm ci --no-audit --maxsockets 1
+COPY --chown=node:node . .
 
-EXPOSE 9000
-
-CMD [ "npm", "start" ]
+USER node
+EXPOSE 8080
+CMD ["node", "index.js"]

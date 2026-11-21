@@ -1,4 +1,9 @@
+node_modules
+dist
+.env
+.env.*
+Dockerfile*
 .dockerignore
 .gitignore
-node_modules
-Dockerfile
+jenkinsfile
+sonar.properties

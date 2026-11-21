@@ -1,7 +1,6 @@
 require("dotenv").config();
 const { Pool } = require("pg");
 
-const isProduction = process.env.NODE_ENV === "production";
 const database =
   process.env.NODE_ENV === "test"
     ? process.env.POSTGRES_DB_TEST
@@ -13,7 +12,7 @@ const pool = new Pool({
   /*
     SSL is not supported in development
     */
-  ssl: isProduction ? { rejectUnauthorized: false } : false,
+  ssl: process.env.POSTGRES_SSL === "true" ? { rejectUnauthorized: false } : false,
 });
 
 module.exports = {

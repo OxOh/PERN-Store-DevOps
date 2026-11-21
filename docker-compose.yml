@@ -1,81 +1,62 @@
-version: "3.8"
-
 services:
-  server:
-    image: pern-store-server
-    container_name: pern-store-server
-    build:
-      context: ./server
-      dockerfile: Dockerfile
-    # restart: always
-    env_file:
-      - ./server/.env
-    environment:
-      - POSTGRES_HOST=3.84.191.228
-      - POSTGRES_DB=pernstore
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=newpassword
-    volumes:
-      # Maps the server directory to
-      # the working directory in the container
-      - ./server:/usr/src/app
-      # Maps the node_modules directory to
-      # the working directory in the container
-      # and also fixes bcrypt error
-      - /usr/src/app/node_modules
-    ports:
-      - 9000:9000
-    networks:
-      - pernstore
-    # depends_on:
-    #   - database
-  client:
-    image: pern-store-client
-    container_name: pern-store-client
+  db:
+    image: postgres:16.4-alpine
     restart: unless-stopped
-    env_file:
-      - ./client/.env
+    env_file: ./server/.env
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./server/config/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    networks:
+      - backend
+
+  server:
+    build: ./server
+    restart: unless-stopped
+    env_file: ./server/.env
+    environment:
+      POSTGRES_HOST: db
+      POSTGRES_PORT: 5432
+      PORT: 8080
+    depends_on:
+      db:
+        condition: service_healthy
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    networks:
+      - backend
+      - frontend
+
+  client:
     build:
       context: ./client
-      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: /api
+        VITE_GOOGLE_CLIENT_ID: ${VITE_GOOGLE_CLIENT_ID}
+        VITE_STRIPE_PUB_KEY: ${VITE_STRIPE_PUB_KEY}
+        VITE_PAYSTACK_PUB_KEY: ${VITE_PAYSTACK_PUB_KEY}
+    restart: unless-stopped
     ports:
-      - 3001:3000
-    volumes:
-      - ./client:/usr/src/app
-      - /usr/src/app/node_modules
+      - "127.0.0.1:3000:8080"
     depends_on:
       - server
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
     networks:
-      - pernstore
-  # database:
-  #   container_name: pern-store-db
-  #   image: postgres
-  #   restart: always
-  #   env_file:
-  #     - ./server/.env
-  #   environment:
-  #     # other environment variables is in ./server/.env file
-  #     - POSTGRES_PASSWORD=adminuser
-  #   ports:
-  #     - 7890:5432
-  #   volumes:
-  #     - ./db:/var/lib/postgresql/data
-  #     # When the PostgreSQL container is started it will run any scripts
-  #     # provided in the `docker-entrypoint-initdb.d` directory
-  #     # seed the database with the init.sql file
-  #     - ./server/config/init.sql:/docker-entrypoint-initdb.d/init.sql
-  # pgadmin:
-  #   image: dpage/pgadmin4
-  #   environment:
-  #     PGADMIN_DEFAULT_EMAIL: "dhatguy@mail.com"
-  #     PGADMIN_DEFAULT_PASSWORD: "qwertyuiop"
-  #   ports:
-  #     - "16543:80"
-  #   depends_on:
-  #     - database
+      - frontend
+
 networks:
-  pernstore: 
-    driver: bridge
+  frontend:
+  backend:
+    internal: true
+
 volumes:
-  db:
-    driver: local
+  pgdata:
