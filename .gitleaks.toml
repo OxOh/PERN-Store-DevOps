@@ -1,0 +1,6 @@
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Swagger API docs contain example tokens for documentation, not real secrets"
+paths = ['''server/docs/''']
