@@ -39,7 +39,7 @@
     "nodemailer": "^10.6.1",
     "pg": "^8.8.0",
     "pino": "^6.11.3",
-    "stripe": "^8.138.0",
+    "stripe": "^23.1.0",
     "swagger-ui-express": "^4.6.0"
   },
   "devDependencies": {
