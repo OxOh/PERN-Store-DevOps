@@ -1,3 +1,5 @@
+const fs = require("fs");
+const path = require("path");
 require("dotenv").config();
 const { Pool } = require("pg");
 
@@ -12,7 +14,14 @@ const pool = new Pool({
   /*
     SSL is not supported in development
     */
-  ssl: process.env.POSTGRES_SSL === "true" ? { rejectUnauthorized: false } : false,
+    ssl:
+    process.env.POSTGRES_SSL === "true"
+      ? {
+          ca: fs
+            .readFileSync(path.join(__dirname, "../certs/rds-global-bundle.pem"))
+            .toString(),
+        }
+      : false,
 });
 
 module.exports = {
