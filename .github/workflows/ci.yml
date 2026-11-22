@@ -10,7 +10,7 @@ permissions:
 
 concurrency:
   group: ci-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   secrets:
@@ -149,3 +149,49 @@ jobs:
       - uses: SonarSource/sonarqube-scan-action@2f77a1ec69fb1d595b06f35ab27e97605bdef703 # v5.3.2
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+  deploy:
+    name: Deploy - ECS Fargate
+    runs-on: ubuntu-latest
+    needs: [docker]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@7474bc4690e29a8392af63c5b98e7449536d5c3a # v4.3.1
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+      - name: Register new task definitions and roll out
+        run: |
+          registry="${{ vars.AWS_ACCOUNT_ID }}.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com"
+          for svc in server client; do
+            image="$registry/pern-store-$svc:$GITHUB_SHA"
+            aws ecs describe-task-definition --task-definition "pern-store-$svc" --query taskDefinition \
+              | jq --arg repo "$registry/pern-store-$svc:" --arg img "$image" '
+                  .containerDefinitions |= map(if (.image | startswith($repo)) then .image = $img else . end)
+                  | del(.taskDefinitionArn, .revision, .status, .requiresAttributes,
+                        .compatibilities, .registeredAt, .registeredBy, .deregisteredAt)' \
+              > "td-$svc.json"
+            arn=$(aws ecs register-task-definition --cli-input-json "file://td-$svc.json" \
+              --query 'taskDefinition.taskDefinitionArn' --output text)
+            echo "$svc -> $arn"
+            echo "$arn" > "arn-$svc.txt"
+            aws ecs update-service --cluster pern-store --service "pern-store-$svc" \
+              --task-definition "$arn" --query 'service.serviceName' --output text
+          done
+      - name: Wait for rollout and verify no rollback
+        run: |
+          aws ecs wait services-stable --cluster pern-store --services pern-store-server pern-store-client
+          for svc in server client; do
+            want=$(cat "arn-$svc.txt")
+            got=$(aws ecs describe-services --cluster pern-store --services "pern-store-$svc" \
+              --query 'services[0].taskDefinition' --output text)
+            if [ "$got" != "$want" ]; then
+              echo "::error::$svc rolled back: running $got, expected $want"
+              exit 1
+            fi
+            echo "$svc is running $got"
+          done
